@@ -129,7 +129,7 @@ class Word(object):
         if 'character_spacing' in kwargs:
             self.character_spacing = kwargs['character_spacing']
         else:
-            self.character_spacing = numpy.random.normal(0, 0.4, 1)[0]  # (0, 0.7, 1)[0]
+            self.character_spacing = numpy.random.normal(0.1, 0.4, 1)[0]  # (0, 0.7, 1)[0]
 
         #   Stylising
         self.stylise()
