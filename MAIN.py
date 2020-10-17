@@ -20,7 +20,7 @@ beacon_chars_list = ['*']
 
 class Char(object):
 
-    default_attributes = {
+    default_attributes_char = {
         'text_color': '#000000',
         'background_color': '#FFFFFF',
         'style_underlined': False,
@@ -109,38 +109,115 @@ class Char(object):
 
 
 
-    class Word(object):
+class Word(object):
 
-        def __init__(self, text:str, **kwargs):
+    def __init__(self, text:str, **kwargs):
 
-            self.text = text
+        self.text = text
+        self.char_list = []  # a list of Char objects
 
-            # not the same as a char: all attributes are determined randomly
+        # not the same as a char: all attributes are determined randomly
 
 
-        def stylise(self):
 
+    def apply_char_style(self):
+
+        for char in self.text:
+            char = char.encode('ascii', 'xmlcharrefreplace').decode('utf-8')
+            self.char_list.append(random_style_char(char))
+
+
+    def apply_word_style(self):
+        styles_list = ['ramp_up', 'ramp_down', 'wave', 'capitals', 'color_gradient']
+
+        style = styles_list[random.randint(0, len(styles_list) - 1)] # choosing at random
+
+        if style == 'ramp_up':
             pass
 
-            # will either single out characters or choose gradients etc
-
-
-        def generate_html(self) -> str:
+        elif style == 'ramp_down':
             pass
 
+        elif style == 'wave':
+            pass
+
+        elif style == 'capitals':
+            pass
+
+        elif style == 'color_gradient':
+            pass
+
+        else: #resetting to default method (character-wise)
+            self.apply_char_style()
+
+        #self.char_list.append(char)
+
+
+    def stylise(self):
+        self.char_list = []  # A list of Char objects (resetting in case function called several time)
+
+        if random.randint(0, 99) <= 7: # 7% chance of picking a word-wide style style
+            self.apply_word_style()
+
+        else:
+            self.apply_char_style()
+
+
+    def generate_html(self) -> str:
+        html_line_list = []
+
+        for char_obj in self.char_list:
+
+            if char_obj.text in beacon_chars_list:
+                html_line_list.append(char_obj.text)
+                continue
+
+            html_line_list.append(char_obj.generate_html())
+
+        html_text = '<div>' + ''.join(html_line_list) + '</div>'
+        return html_text
 
 
 
 
-    class Line(object):
-
-        def __init__(self, text:str, **kwargs):
-
-            self.text = text
-
-            self.height = 0.7
 
 
+class Line(object):
+
+    def __init__(self, text:str, **kwargs):
+
+        self.text = text
+        self.word_list = [] # a list of Word objects
+
+        self.height = 0.7
+
+
+
+    def stylise(self):
+
+        for word in self.text.split(' '):
+            word_obj = Word(word)
+            word_obj.stylise()
+
+            self.word_list.append(word_obj)
+
+
+
+    def generate_html(self):
+
+        html_line = '<p style="{line_style}">{line_str}</p>'
+        html_line_list = []
+
+        for word_obj in self.word_list:
+
+            html_line_list.append(word_obj.generate_html())
+
+            html_line_list.append(random_style_char(' ').generate_html()) # crude way of adding a processed space (will need to delete the last one
+
+        html_line = html_line.format(**{
+            'line_style': '',
+            'line_str': ''.join(html_line_list[:-1])
+        })
 
 
 
@@ -224,21 +301,13 @@ def random_style_char(text:str) -> Char:
 def beautify_text(text:str) -> str:
     html_text = ''
 
-    for line in text.split('\n'):#TO BETTER
-        html_line_list = []
-
-        for char in line:
-
-            if char in beacon_chars_list:
-                html_line_list.append(char)
-                continue
-
-            char = char.encode('ascii', 'xmlcharrefreplace').decode('utf-8')
-
-            html_line_list.append(random_style_char(char).generate_html())
-        html_text += '<div>' + ''.join(html_line_list) + '</div>'
+    for line in text.split('\n'):#TO BETTER:
+        line_obj = Line(line)
+        html_text += line_obj.generate_html()
 
     return html_text
+
+
 
 
 def save(html_text: str, output_path='output.html'):
