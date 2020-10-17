@@ -163,35 +163,37 @@ class Word(object):
 
             #   2.1. Size ramp up / everything is random apart from size
             if style == 'size_ramp_up':
-                word_len = len(self.text)
-                sizes_array = numpy.array([i + 9 for i in range(word_len)])
+                sizes_array = numpy.array([5*i + 9 for i in range(word_len)])
+
+                style_font = BFunc.random_font()  # fixing the font
 
                 for char_index, char_str in enumerate(self.text):
-                    char_obj = Char(char_str, font_size=sizes_array[char_index])
+                    char_obj = Char(char_str, font_size=sizes_array[char_index], style_font=style_font)
                     self.char_list.append(char_obj)
 
             #   2.2. Size ramp down / everything is random apart from size
             elif style == 'size_ramp_down':
-                word_len = len(self.text)
-                sizes_array = numpy.array([i + 9 for i in range(word_len)][::-1])
+                sizes_array = numpy.array([5*i + 9 for i in range(word_len)][::-1])
+
+                style_font = BFunc.random_font()  # fixing the font
 
                 for char_index, char_str in enumerate(self.text):
-                    char_obj = Char(char_str, font_size=sizes_array[char_index])
+                    char_obj = Char(char_str, font_size=sizes_array[char_index], style_font=style_font)
                     self.char_list.append(char_obj)
 
             #   2.3. Size wave / everything is random apart from size
             elif style == 'wave':
-                word_len = len(self.text)
-                points_array = numpy.array([i*0.3 for i in range(word_len)][::-1]) # approximately 10/π
-                sizes_array = numpy.abs(numpy.sin(points_array))
+                points_array = numpy.array([i*0.15 for i in range(word_len)][::-1])
+                sizes_array = (numpy.abs(numpy.sin(points_array)) * 10) ** 2
+
+                style_font = BFunc.random_font()  # fixing the font
 
                 for char_index, char_str in enumerate(self.text):
-                    char_obj = Char(char_str, font_size=sizes_array[char_index])
+                    char_obj = Char(char_str, font_size=sizes_array[char_index], style_font=style_font)
                     self.char_list.append(char_obj)
 
             #   2.4 Color gradient / everything is random apart from text color and text background color
             elif style == 'color_gradient':
-                word_len = len(self.text)
                 background_color = BFunc.random_hex_color()
 
                 color_start = Color(BFunc.random_hex_color())
@@ -206,10 +208,11 @@ class Word(object):
             else:
                 apply_char_style()
 
+        word_len = len(self.text)
         self.char_list = []  # A list of Char objects (resetting in case function called several time)
 
-        #   1. Word-level formatting (7% chance)
-        if random.randint(0, 99) <= 7: apply_word_style()
+        #   1. Word-level formatting (chance depends on word length, ≥7%)
+        if (random.randint(0, 99) - (word_len * 2)) <= 7: apply_word_style()
 
         #   2. Character-level formatting (default)
         else: apply_char_style()
