@@ -3,7 +3,6 @@ import random
 
 line_breaks_list = ['\n'] ## ADD MORE
 
-
 def split_many(text:str, split_list:list=line_breaks_list) -> list:
     """
     This function splits a string along multiple different split points (default are line breaks). It is case-sensitive.
@@ -17,24 +16,45 @@ def split_many(text:str, split_list:list=line_breaks_list) -> list:
             text = text.replace(separator, split_separator)
     return text.split(split_separator)
 
-
 def random_hex_color() -> str:
+    """
+    This function generates a random hexadecimal color value.
+    :return: The random hexadecimal color value
+    """
     color_int = random.randint(0, 16777215)
     color_hex = '#' + str(hex(color_int))[2:]
     return color_hex
 
 def random_bool(ponderation_array:list=[0, 1]) -> bool:
+    """
+    This function generates a random boolean based on a ponderation array (0 = False, 1 = True).
+    :param ponderation_array: The ponderation array to use for the boolean generation
+    :return: The random boolean
+    """
     random_bool = bool(ponderation_array[random.randint(0, len(ponderation_array) - 1)])
     return random_bool
 
 def random_from_array(ponderation_array:list) -> str or int or float:
+    """
+    This function chooses a random element from a list.
+    :param ponderation_array: The list to choose the random element from
+    :return: The random element from the list
+    """
     return ponderation_array[random.randint(0, len(ponderation_array) - 1)]
 
-def random_font_size():
-    font_size = numpy.abs(numpy.random.normal(50, 20, 1)[0])
+def random_font_size() -> int:
+    """
+    This function generates a random font size using a normal probabilistic model.
+    :return: The random font size
+    """
+    font_size = int(numpy.abs(numpy.random.normal(45, 20, 1)[0]) + 8)
     return font_size
 
-def random_font():
+def random_font() -> str:
+    """
+    This function picks a random font from the list of available fonts.
+    :return: The random font's name
+    """
     fonts = ['',
              """"'arial, helvetica, sans-serif'""",
              """"'times new roman', 'new york', times, serif""",
@@ -49,4 +69,4 @@ def random_font():
              """'trebuchet ms', sans-serif""",
              """verdana, helvetica, sans-serif"""
     ]
-    style_font = fonts[random.randint(0, len(fonts) - 1)]
+    return random_from_array(fonts)
