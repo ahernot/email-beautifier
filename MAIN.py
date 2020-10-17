@@ -59,6 +59,5 @@ def convert(input_file_path: str):
 
         if __MESSAGES__: print('HTML-formatted text successfully copied to clipboard.')
 
-
-
-convert('/Users/Anatole/Desktop/t.txt')
+# Usage:
+# convert('/Desktop/sample_message.txt')
