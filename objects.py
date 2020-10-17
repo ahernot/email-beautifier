@@ -168,6 +168,7 @@ class Word(object):
                 style_font = BFunc.random_font()  # fixing the font
 
                 for char_index, char_str in enumerate(self.text):
+                    char_str = char_str.encode('ascii', 'xmlcharrefreplace').decode('utf-8')
                     char_obj = Char(char_str, font_size=sizes_array[char_index], style_font=style_font)
                     self.char_list.append(char_obj)
 
@@ -178,6 +179,7 @@ class Word(object):
                 style_font = BFunc.random_font()  # fixing the font
 
                 for char_index, char_str in enumerate(self.text):
+                    char_str = char_str.encode('ascii', 'xmlcharrefreplace').decode('utf-8')
                     char_obj = Char(char_str, font_size=sizes_array[char_index], style_font=style_font)
                     self.char_list.append(char_obj)
 
@@ -189,6 +191,7 @@ class Word(object):
                 style_font = BFunc.random_font()  # fixing the font
 
                 for char_index, char_str in enumerate(self.text):
+                    char_str = char_str.encode('ascii', 'xmlcharrefreplace').decode('utf-8')
                     char_obj = Char(char_str, font_size=sizes_array[char_index], style_font=style_font)
                     self.char_list.append(char_obj)
 
@@ -201,6 +204,7 @@ class Word(object):
                 colors_array = list(color_start.range_to(color_stop, word_len))
 
                 for char_index, char_str in enumerate(self.text):
+                    char_str = char_str.encode('ascii', 'xmlcharrefreplace').decode('utf-8')
                     char_obj = Char(char_str, text_color=colors_array[char_index].get_hex(), background_color=background_color)
                     self.char_list.append(char_obj)
 
