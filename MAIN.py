@@ -21,7 +21,6 @@ def stylise(text:str) -> str:
 
     for line in BFunc.split_many(text):
         line_obj = Line(line)
-        line_obj.stylise()
         html_text += line_obj.generate_html()
 
     return html_text

@@ -25,13 +25,11 @@ class Char(object):
         else:
             self.text_color = BFunc.random_hex_color()
 
-
         #   Background color (CSS)
         if 'background_color' in kwargs:
             self.background_color = kwargs['background_color']
         else:
             self.background_color = BFunc.random_hex_color()
-
 
         #   Style underlined (CSS)
         if 'style_underlined' in kwargs:
@@ -81,6 +79,8 @@ class Char(object):
         :return: The HTML-formatted character string
         """
 
+        print(self.text, self.font_size, self.text_color)
+
         #   1. Initialising the variables
         html_line = '{other_styles_start}<span style="{style_line}">{text}</span>{other_styles_stop}'
         style_line_list = []
@@ -91,8 +91,8 @@ class Char(object):
         if self.style_underlined: style_line_list.append('text-decoration: underline;')  # underlined
         if self.style_strikethrough: style_line_list.append('text-decoration: line-through;')  # struckthrough
         style_line_list.append('font-size: {}pt;'.format(self.font_size))  # font size
-        style_line_list.append('font-family: {};').format(self.style_font)  # font style
-        style_line_list.append('vertical-align: {}px;').format(self.vertical_alignment)  # vertical alignment
+        style_line_list.append('font-family: {};'.format(self.style_font))  # font style
+        style_line_list.append('vertical-align: {}px;'.format(self.vertical_alignment))  # vertical alignment
 
         #   3. Adding the HTML styles
         other_styles_list = []
@@ -129,7 +129,7 @@ class Word(object):
         if 'character_spacing' in kwargs:
             self.character_spacing = kwargs['character_spacing']
         else:
-            self.character_spacing = numpy.random.normal(0, 0.7, 1)[0]
+            self.character_spacing = numpy.random.normal(0, 0.4, 1)[0]  # (0, 0.7, 1)[0]
 
         #   Stylising
         self.stylise()
@@ -150,7 +150,7 @@ class Word(object):
             for char_str in self.text:
                 char_str = char_str.encode('ascii', 'xmlcharrefreplace').decode('utf-8')
                 char_obj = Char(char_str)
-                self.char_list.append(char_str)
+                self.char_list.append(char_obj)
 
         def apply_word_style():
             """
@@ -159,10 +159,9 @@ class Word(object):
             """
 
             #   1. Choosing a general word style, at random
-            styles_list = ['size_ramp_up', 'size_ramp_down', 'wave', 'color_gradient']#, 'capitals']
-            style = styles_list[random.randint(0, len(styles_list) - 1)]  # choosing at random
+            style = BFunc.random_from_array(['size_ramp_up', 'size_ramp_down', 'wave', 'color_gradient'])
 
-            #   1.1. Size ramp up / everything is random apart from size
+            #   2.1. Size ramp up / everything is random apart from size
             if style == 'size_ramp_up':
                 word_len = len(self.text)
                 sizes_array = numpy.array([i + 9 for i in range(word_len)])
@@ -171,7 +170,7 @@ class Word(object):
                     char_obj = Char(char_str, font_size=sizes_array[char_index])
                     self.char_list.append(char_obj)
 
-            #   1.2. Size ramp down / everything is random apart from size
+            #   2.2. Size ramp down / everything is random apart from size
             elif style == 'size_ramp_down':
                 word_len = len(self.text)
                 sizes_array = numpy.array([i + 9 for i in range(word_len)][::-1])
@@ -180,7 +179,7 @@ class Word(object):
                     char_obj = Char(char_str, font_size=sizes_array[char_index])
                     self.char_list.append(char_obj)
 
-            #   1.3. Size wave / everything is random apart from size
+            #   2.3. Size wave / everything is random apart from size
             elif style == 'wave':
                 word_len = len(self.text)
                 points_array = numpy.array([i*0.3 for i in range(word_len)][::-1]) # approximately 10/π
@@ -190,7 +189,7 @@ class Word(object):
                     char_obj = Char(char_str, font_size=sizes_array[char_index])
                     self.char_list.append(char_obj)
 
-            #   1.4 Color gradient / everything is random apart from text color and text background color
+            #   2.4 Color gradient / everything is random apart from text color and text background color
             elif style == 'color_gradient':
                 word_len = len(self.text)
                 background_color = BFunc.random_hex_color()
@@ -203,7 +202,7 @@ class Word(object):
                     char_obj = Char(char_str, text_color=colors_array[char_index].get_hex(), background_color=background_color)
                     self.char_list.append(char_obj)
 
-            #   1.5. Resetting to default method (character-wise)
+            #   3. Resetting to default method (character-wise)
             else:
                 apply_char_style()
 
@@ -241,7 +240,7 @@ class Word(object):
         #   4. Generating the line
         html_line = html_line.format(**{
             'word_style': ' '.join(style_word_list),
-            'word_str': ''.join(text_list[:-1])
+            'word_str': ''.join(text_list)
         })
 
         return html_line
@@ -264,7 +263,7 @@ class Line(object):
         if 'line_spacing' in kwargs:
             self.line_spacing = kwargs['line_spacing']
         else:
-            self.line_spacing = numpy.abs(numpy.random.normal(0.7, 0.2, 1)[0])
+            self.line_spacing = numpy.abs(numpy.random.normal(1.0, 0.125, 1)[0])  # (0.7, 0.2, 1)[0])
 
         #   Text alignment
         if 'text_alignment' in kwargs:
@@ -285,16 +284,15 @@ class Line(object):
         self.word_list = []  # A list of Word objects (resetting in case function called several time)
 
         for word in self.text.split(' '):
-            word_obj = Word(word)
-            word_obj.stylise()
+            if not word: continue
 
+            word_obj = Word(word)
             self.word_list.append(word_obj)
 
     def generate_html(self):
         """
         This function generates the HTML-formatted stylised line contained in the Line object.
         :return: The HTML-formatted line string
-        :return:
         """
 
         #   1. Initialising the variables
@@ -316,3 +314,5 @@ class Line(object):
             'line_style': ' '.join(style_line_list),
             'line_str': ''.join(text_list[:-1])
         })
+
+        return html_line

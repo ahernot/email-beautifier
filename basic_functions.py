@@ -21,9 +21,8 @@ def random_hex_color() -> str:
     This function generates a random hexadecimal color value.
     :return: The random hexadecimal color value
     """
-    color_int = random.randint(0, 16777215)
-    color_hex = '#' + str(hex(color_int))[2:]
-    return color_hex
+    r = lambda: random.randint(0, 255)
+    return '#%02X%02X%02X' % (r(), r(), r())
 
 def random_bool(ponderation_array:list=[0, 1]) -> bool:
     """

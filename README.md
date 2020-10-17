@@ -1,5 +1,5 @@
 # email-beautifier
-## v0.1.1
+## v0.1.2
 
 This program adds random styles to an email to make it more fun to read. Enjoy!
 
