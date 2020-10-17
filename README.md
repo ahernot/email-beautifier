@@ -12,3 +12,4 @@ To do:
 * Split the lines along all line separators!
 * Process tabs (\t) and other special characters accurately
 * Rearrange the Char object to make the random generator function intrinsic
+* Compute the color gradient manually (in 3D RGB space)

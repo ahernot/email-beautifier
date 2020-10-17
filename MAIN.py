@@ -1,6 +1,9 @@
 import random
 import numpy
 import subprocess
+from colour import Color #pip install colour
+
+import basic_functions as BFunc
 
 
 __OPERATING_SYSTEM__ = 'macOS'
@@ -13,14 +16,7 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor i
 _psep_ = '/'
 _esep_ = '.'
 
-
-
-beacon_chars_list = ['*']
-
-
-class Char(object):
-
-    default_attributes_char = {
+default_attributes_char = {
         'text_color': '#000000',
         'background_color': '#FFFFFF',
         'style_underlined': False,
@@ -31,49 +27,77 @@ class Char(object):
         'style_font': """'arial black', 'avant garde'"""
     }
 
+
+beacon_chars_list = ['*']
+
+
+
+
+
+
+
+class Char(object):
+
     def __init__(self, text:str, **kwargs):
+        """
+        This class creates a Char object. All unspecified parameters will be chosen at random.
+        :param text:
+        :param kwargs:
+        """
 
         self.text = text
 
         #   Text color (CSS)
-        self.text_color = default_attributes_char['text_color']
         if 'text_color' in kwargs:
             self.text_color = kwargs['text_color']
+        else:
+            self.text_color = BFunc.random_hex_color()
+
 
         #   Background color (CSS)
-        self.background_color = default_attributes_char['background_color']
         if 'background_color' in kwargs:
             self.background_color = kwargs['background_color']
+        else:
+            self.background_color = BFunc.random_hex_color()
+
 
         #   Style underlined (CSS)
-        self.style_underlined = default_attributes_char['style_underlined']
         if 'style_underlined' in kwargs:
             self.style_underlined = kwargs['style_underlined']
+        else:
+            self.style_underlined = BFunc.random_bool([0, 0, 0, 0, 1, 1, 1])
 
         #   Style strikethrough (CSS)
-        self.style_strikethrough = default_attributes_char['style_strikethrough']
         if 'style_strikethrough' in kwargs:
             self.style_strikethrough = kwargs['style_strikethrough']
+        else:
+            self.style_strikethrough = BFunc.random_bool([0, 0, 0, 0, 0, 0, 1])
 
         #   Style italicised (HTML)
-        self.style_italicised = default_attributes_char['style_italicised']
         if 'style_italicised' in kwargs:
             self.style_italicised = kwargs['style_italicised']
+        else:
+            self.style_italicised = BFunc.random_bool([0, 0, 1, 1, 1])
 
         #   Style bold (HTML)
-        self.style_bold = default_attributes_char['style_bold']
         if 'style_bold' in kwargs:
             self.style_bold = kwargs['style_bold']
+        else:
+            self.style_bold = BFunc.random_bool([0, 1, 1])
 
         #   Font size (CSS)
-        self.font_size = default_attributes_char['font_size']
         if 'font_size' in kwargs:
             self.font_size = kwargs['font_size']
+        else:
+            self.font_size = BFunc.random_font_size()
 
         #   Style font (CSS)
-        self.style_font = default_attributes_char['style_font']
         if 'style_font' in kwargs:
             self.style_font = kwargs['style_font']
+        else:
+            self.style_font = BFunc.random_font()
+
+
 
     def generate_html(self) -> str:
 
@@ -114,53 +138,86 @@ class Word(object):
     def __init__(self, text:str, **kwargs):
 
         self.text = text
-        self.char_list = []  # a list of Char objects
+        self.char_list = []  # A list of Char objects
 
-        # not the same as a char: all attributes are determined randomly
-
-
-
-    def apply_char_style(self):
-
-        for char in self.text:
-            char = char.encode('ascii', 'xmlcharrefreplace').decode('utf-8')
-            self.char_list.append(random_style_char(char))
-
-
-    def apply_word_style(self):
-        styles_list = ['ramp_up', 'ramp_down', 'wave', 'capitals', 'color_gradient']
-
-        style = styles_list[random.randint(0, len(styles_list) - 1)] # choosing at random
-
-        if style == 'ramp_up':
-            pass
-
-        elif style == 'ramp_down':
-            pass
-
-        elif style == 'wave':
-            pass
-
-        elif style == 'capitals':
-            pass
-
-        elif style == 'color_gradient':
-            pass
-
-        else: #resetting to default method (character-wise)
-            self.apply_char_style()
-
-        #self.char_list.append(char)
+        self.stylise()
 
 
     def stylise(self):
+
+        def apply_char_style():
+            """
+            This function chooses the style of each character at random, independently.
+            :return:
+            """
+
+            for char_str in self.text:
+                char_str = char_str.encode('ascii', 'xmlcharrefreplace').decode('utf-8')
+                char_obj = Char(char_str)
+                self.char_list.append(char_str)
+
+        def apply_word_style():
+            """
+            This function chooses the general style of the whole word.
+            :return:
+            """
+
+            #   1. Choosing a general word style, at random
+            styles_list = ['size_ramp_up', 'size_ramp_down', 'wave', 'color_gradient']#, 'capitals']
+            style = styles_list[random.randint(0, len(styles_list) - 1)]  # choosing at random
+
+            #   1.1. Size ramp up / everything is random apart from size
+            if style == 'size_ramp_up':
+                word_len = len(self.text)
+                sizes_array = numpy.array([i + 9 for i in range(word_len)])
+
+                for char_index, char_str in enumerate(self.text):
+                    char_obj = Char(char_str, font_size=sizes_array[char_index])
+                    self.char_list.append(char_obj)
+
+            #   1.2. Size ramp down / everything is random apart from size
+            elif style == 'size_ramp_down':
+                word_len = len(self.text)
+                sizes_array = numpy.array([i + 9 for i in range(word_len)][::-1])
+
+                for char_index, char_str in enumerate(self.text):
+                    char_obj = Char(char_str, font_size=sizes_array[char_index])
+                    self.char_list.append(char_obj)
+
+            #   1.3. Size wave / everything is random apart from size
+            elif style == 'wave':
+                word_len = len(self.text)
+                points_array = numpy.array([i*0.3 for i in range(word_len)][::-1]) # approximately 10/π
+                sizes_array = numpy.abs(numpy.sin(points_array))
+
+                for char_index, char_str in enumerate(self.text):
+                    char_obj = Char(char_str, font_size=sizes_array[char_index])
+                    self.char_list.append(char_obj)
+
+            #   1.4 Color gradient / everything is random apart from text color and text background color
+            elif style == 'color_gradient':
+                word_len = len(self.text)
+                background_color = BFunc.random_hex_color()
+
+                color_start = Color(BFunc.random_hex_color())
+                color_stop  = Color(BFunc.random_hex_color())
+                colors_array = list(color_start.range_to(color_stop, word_len))
+
+                for char_index, char_str in enumerate(self.text):
+                    char_obj = Char(char_str, text_color=colors_array[char_index].get_hex(), background_color=background_color)
+                    self.char_list.append(char_obj)
+
+            #   1.5. Resetting to default method (character-wise)
+            else:
+                apply_char_style()
+
         self.char_list = []  # A list of Char objects (resetting in case function called several time)
 
-        if random.randint(0, 99) <= 7: # 7% chance of picking a word-wide style style
-            self.apply_word_style()
+        #   1. Word-level formatting (7% chance)
+        if random.randint(0, 99) <= 7: apply_word_style()
 
-        else:
-            self.apply_char_style()
+        #   2. Character-level formatting (default)
+        else: apply_char_style()
 
 
     def generate_html(self) -> str:
@@ -185,15 +242,28 @@ class Word(object):
 class Line(object):
 
     def __init__(self, text:str, **kwargs):
-
         self.text = text
-        self.word_list = [] # a list of Word objects
+        self.word_list = [] # A list of Word objects
 
-        self.height = 0.7
+        #   Line spacing
+        if 'line_spacing' in kwargs:
+            self.line_spacing = kwargs['line_spacing']
+        else:
+            self.line_spacing = numpy.abs(numpy.random.normal(0.7, 0.2, 1)[0])
+
+        #   Text alignment
+        if 'text_alignment' in kwargs:
+            self.text_alignment = kwargs['text_alignment']
+        else:
+            self.text_alignment = BFunc.random_from_array(['left', 'left', 'left', 'left', 'left', 'right', 'center', 'justify'])
 
 
 
     def stylise(self):
+        """
+        This function generates the stylised word objects from the text's 'words'
+        :return:
+        """
 
         for word in self.text.split(' '):
             word_obj = Word(word)
@@ -205,93 +275,31 @@ class Line(object):
 
     def generate_html(self):
 
+        #   1. Initialising the variables
         html_line = '<p style="{line_style}">{line_str}</p>'
-        html_line_list = []
+        style_line_list = []
+        text_list = []
 
+        #   2. Adding the styles
+        style_line_list.append('line-height: {};'.format(self.line_spacing))  # line spacing
+        style_line_list.append('text-align: {};'.format(self.text_alignment))  # text alignment
+
+        #   3. Adding the processed words
         for word_obj in self.word_list:
+            text_list.append(word_obj.generate_html())
+            text_list.append(Char(' ').generate_html()) # crude way of adding a processed space (will need to delete the last one)
 
-            html_line_list.append(word_obj.generate_html())
-
-            html_line_list.append(random_style_char(' ').generate_html()) # crude way of adding a processed space (will need to delete the last one
-
+        #   4. Generating the line
         html_line = html_line.format(**{
-            'line_style': '',
-            'line_str': ''.join(html_line_list[:-1])
+            'line_style': ' '.join(style_line_list),
+            'line_str': ''.join(text_list[:-1])
         })
 
 
 
 
 
-"""
-CHARACTER: span style="vertical-align: 5.0px;"
-WORD-WISE: span style="letter-spacing: -0.7px;"
-LINE-WISE: line-height: 0.7
-LINE-WISE: text-align: right/center/left/justify
-"""
 
-
-def random_style_char(text:str) -> Char:
-    #   Text color (CSS)
-    text_color_int = random.randint(0, 16777215)
-    text_color_hex = '#' + str(hex(text_color_int))[2:]
-
-    #   Background color (CSS)
-    background_color_int = random.randint(0, 16777215)
-    background_color_hex = '#' + str(hex(background_color_int))[2:]
-
-    #   Style underlined (CSS)
-    style_underlined_spread = [0, 0, 0, 0, 1, 1, 1]
-    style_underlined = bool(style_underlined_spread[random.randint(0, len(style_underlined_spread) - 1)]) #style_underlined = bool(random.randint(0, 1))
-
-
-    #   Style strikethrough (CSS)
-    style_strikethrough_spread = [0, 0, 0, 0, 0, 0, 1]
-    style_strikethrough = bool(style_strikethrough_spread[random.randint(0, len(style_strikethrough_spread) - 1)]) #style_strikethrough = bool(random.randint(0, 1))
-
-    #   Style italicised (HTML)
-    style_italicised_spread = [0, 0, 1, 1, 1]
-    style_italicised = bool(style_italicised_spread[random.randint(0, len(style_italicised_spread) - 1)]) #style_italicised = bool(random.randint(0, 1))
-
-    #   Style bold (HTML)
-    style_bold_spread = [0, 1, 1]
-    style_bold = bool(style_bold_spread[random.randint(0, len(style_bold_spread) - 1)]) #style_bold = bool(random.randint(0, 1))
-
-    #   Font size (CSS)
-    font_size = numpy.abs(numpy.random.normal(50, 20, 1)[0]) #font_size = random.randint(6, 250)
-
-    #   Style font (CSS)
-    fonts = ['',
-             """"'arial, helvetica, sans-serif'""",
-             """"'times new roman', 'new york', times, serif""",
-             """'arial black', 'avant garde'""",
-             """'courier new', courier, monaco, monospace, sans-serif""",
-             """'comic sans ms', 'comic sans', sans-serif""",
-             """'lucida console', sans-serif""",
-             """garamond, 'new york', times, serif""",
-             """georgia, serif""",
-             """tahoma, 'new york', times, serif""",
-             """terminal, monaco""",
-             """'trebuchet ms', sans-serif""",
-             """verdana, helvetica, sans-serif"""
-    ]
-    style_font = fonts[random.randint(0, len(fonts) - 1)]
-
-
-    text_char = Char(
-        text = text,
-        text_color = text_color_hex,
-        background_color = background_color_hex,
-        style_underlined = style_underlined,
-        style_strikethrough = style_strikethrough,
-        style_italicised = style_italicised,
-        style_bold = style_bold,
-        font_size = font_size,
-        style_font = style_font
-    )
-
-
-    return text_char
 
 
 
@@ -301,13 +309,12 @@ def random_style_char(text:str) -> Char:
 def beautify_text(text:str) -> str:
     html_text = ''
 
-    for line in text.split('\n'):#TO BETTER:
+    for line in BFunc.split_many(text):
         line_obj = Line(line)
+        line_obj.stylise()
         html_text += line_obj.generate_html()
 
     return html_text
-
-
 
 
 def save(html_text: str, output_path='output.html'):

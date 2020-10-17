@@ -22,3 +22,11 @@ random size
 
 # if multiple same letters then choose between gradient / wave
 # color gradient, size gradient
+
+
+"""
+CHARACTER: span style="vertical-align: 5.0px;"
+WORD-WISE: span style="letter-spacing: -0.7px;"
+LINE-WISE: line-height: 0.7
+LINE-WISE: text-align: right/center/left/justify
+"""
