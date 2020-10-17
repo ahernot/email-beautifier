@@ -79,7 +79,7 @@ class Char(object):
         :return: The HTML-formatted character string
         """
 
-        print(self.text, self.font_size, self.text_color)
+        ## print(self.text, self.font_size, self.text_color) ##
 
         #   1. Initialising the variables
         html_line = '{other_styles_start}<span style="{style_line}">{text}</span>{other_styles_stop}'
