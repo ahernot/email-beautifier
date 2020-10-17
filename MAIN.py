@@ -1,17 +1,17 @@
 import random
+import numpy
+import subprocess
 
 
-"""
-TO DO
-- Add more fonts
-"""
+__OPERATING_SYSTEM__ = 'macOS'
 
 
-text = '''
+sample_text = '''
 Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
 '''
 
-
+_psep_ = '/'
+_esep_ = '.'
 
 default_attributes = {
     'text_color': '#000000',
@@ -23,6 +23,8 @@ default_attributes = {
     'font_size': 11,
     'style_font': """'arial black', 'avant garde'"""
 }
+
+beacon_chars_list = ['*']
 
 
 class Char(object):
@@ -134,7 +136,8 @@ def random_style_char(text:str) -> Char:
     style_bold = bool(random.randint(0, 1))
 
     #   Font size (CSS)
-    font_size = random.randint(6, 250)
+    #font_size = random.randint(6, 250)
+    font_size = numpy.abs(numpy.random.normal(50, 20, 1)[0])
 
     #   Style font (CSS)
     fonts = ['',
@@ -179,15 +182,47 @@ def beautify_text(text:str) -> str:
 
     for line in text.split('\n'):#TO BETTER
         html_line_list = []
+
         for char in line:
+
+            if char in beacon_chars_list:
+                html_line_list.append(char)
+                continue
+
+            char = char.encode('ascii', 'xmlcharrefreplace').decode('utf-8')
+
             html_line_list.append(random_style_char(char).generate_html())
         html_text += '<div>' + ''.join(html_line_list) + '</div>'
 
     return html_text
 
 
+def save(html_text: str, output_path='output.html'):
+    with open(output_path, 'w', encoding='utf-8') as html_output:
+        html_output.write(html_text)
 
-print(beautify_text(text))
+
+def convert(input_file_path: str):
+    with open(input_file_path, 'r', encoding='utf-8') as txt_input:
+        text = txt_input.read()
+
+    html_text = beautify_text(text)
+
+    output_dir = '/'.join(input_file_path.split(_psep_)[:-1]) + '/'
+    file_name_full_split = input_file_path.split(_psep_)[-1].split(_esep_)
+    file_name = '.'.join(file_name_full_split[:-1])
+
+    output_path = output_dir + file_name + '.html'
+    save(html_text, output_path=output_path)
+    print(f'File saved at location {output_path}')
+
+
+    if __OPERATING_SYSTEM__ == 'macOS': # copying to clipboard
+        process = subprocess.Popen('pbcopy', env={'LANG': 'en_US.UTF-8'}, stdin=subprocess.PIPE)
+        process.communicate(html_text.encode('utf-8'))
+
+        print('HTML-formatted text successfully copied to clipboard.')
 
 
 
+convert('/Users/Anatole/Desktop/t.txt')
