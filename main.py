@@ -26,6 +26,20 @@ def stylise(text:str) -> str:
     return html_text
 
 
+"""
+new principle of operation:
+
+for line in BFunc.split_many(text):
+    end_of_line_style, line_obj = Line(line, begin_style)
+    
+IN line:
+analyse words and <> beacons
+and add or remove styles then
+beacons to be read linearly
+so <colorgrad> or <colorgrad:000000:ffffff> ... </colorgrad> (same as <cg> ... </cg>)
+
+"""
+
 
 def convert(input_file_path: str):
     """
