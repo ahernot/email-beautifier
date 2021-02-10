@@ -1,6 +1,6 @@
 import random
 import numpy
-from colour import Color #pip install colour
+from colour import Color  # pip install colour
 
 import basic_functions as BFunc
 
@@ -254,6 +254,8 @@ class Word(object):
 
 
 
+
+
 class Line(object):
 
     def __init__(self, text:str, **kwargs):
@@ -295,6 +297,7 @@ class Line(object):
 
             word_obj = Word(word)
             self.word_list.append(word_obj)
+
 
     def generate_html(self):
         """
